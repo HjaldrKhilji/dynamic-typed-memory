@@ -27,13 +27,13 @@ namespace storage{
         using List_t    = typename intermediate::List_t;
         using intermediate::return_type_list;
     };
-    template<typename... Types>
-    struct get_variant_of_unique_ts<0, Types...>
+    template<typename Head, typename... Types>
+    struct get_variant_of_unique_ts<0, Head, Types...>
     {
-        using Variant_t = std::variant<Types*...>;
-        using List_t=std::array<std::meta::info, sizeof...(Types)>;
+        using Variant_t = std::variant<Head, Types*...>;
+        using List_t=std::array<std::meta::info, 1+sizeof...(Types)>;
         static constexpr List_t return_type_list(){
-            return List_t{^^Types...};
+            return List_t{^^Head, ^^Types...};
         }
     };
     template<typename ... Types>
