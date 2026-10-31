@@ -30,7 +30,7 @@ namespace storage{
     template<typename Head, typename... Types>
     struct get_variant_of_unique_ts<0, Head, Types...>
     {
-        using Variant_t = std::variant<Head, Types*...>;
+        using Variant_t = std::variant<Head*, Types*...>;
         using List_t=std::array<std::meta::info, 1+sizeof...(Types)>;
         static constexpr List_t return_type_list(){
             return List_t{^^Head, ^^Types...};
@@ -39,7 +39,7 @@ namespace storage{
     template<typename ... Types>
     struct runtime_indexed_tuples {
         std::tuple<Types...> data;
-        using type_folder=typename get_variant_of_unique_ts<sizeof...(Types)
+        using type_folder=get_variant_of_unique_ts<sizeof...(Types)
         - 1, Types...>;
         type_folder::List_t type_reflections;//dosent include duplicates
         using value_type = type_folder::Variant_t;
@@ -54,7 +54,7 @@ namespace storage{
             }, data)
         },
         type_reflections{
-            type_folder::return_type_list();
+            type_folder::return_type_list()
         }
         {}
         constexpr value_type operator[](size_t index) {
@@ -80,11 +80,11 @@ namespace runtime{
         void *ptr;
         enum class Single_tag_type
         {
-            empty;
+            empty
         };
         enum class Dual_Tag_type
         {
-            empty;
+            empty
         };
         std::array<Dual_Tag_type,sizeof...(Ts)> all_dual_tag_enums;//for the template for loop in do_with_value
         constexpr static List_t all_type_reflections{^^Ts...}; //include duplicates
