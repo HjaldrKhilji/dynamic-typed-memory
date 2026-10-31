@@ -39,7 +39,7 @@ namespace storage{
         std::tuple<Types...> data;
         using type_folder=typename get_variant_of_unique_ts<sizeof...(Types)
         - 1, Types...>;
-        type_folder::List_t type_reflection;
+        type_folder::List_t type_reflections;//dosent include duplicates
         using value_type = type_folder::Variant_t;
         using Book_keeping_t = std::array<value_type, (sizeof...(Types))>;
         Book_keeping_t book_keeper;
@@ -51,7 +51,7 @@ namespace storage{
                 return Book_keeping_t{args...};
             }, data)
         },
-        type_reflection{
+        type_reflections{
             type_folder::return_type_list();
         }
         {}
@@ -65,9 +65,12 @@ namespace runtime{
     template<typename... Ts>
     class Dynamic_unit{
 
-        std::array<std::string, sizeof...(Ts)+(sizeof...(Ts)*sizeof...(Ts))> tag_name_buffer;
-        std::size_t index=0;
+        static  inline std::array<std::string, sizeof...(Ts)+(sizeof...(Ts)*sizeof...(Ts))> tag_name_buffer;
+        static  inline std::size_t index=0;
         constexpr std::string& get_buffer_slot(){
+            if(index==tag_name_buffer.lenght()){
+                index=0;
+            }
             index++;
             return tag_name_buffer[index-1];
         }
@@ -82,6 +85,7 @@ namespace runtime{
             empty;
         };
         std::array<Dual_Tag_type,sizeof...(Ts)> all_dual_tag_enums;//for the template for loop in do_with_value
+        constexpr static List_t all_type_reflections{^^Ts...}; //include duplicates
         Single_tag_type tag;
         consteval static std::string construct_name(std::string type_name_1, std::string type_name_2){
             return type_name_1+type_name_2;
@@ -136,7 +140,7 @@ namespace runtime{
         void do_with_value(Dynamic_unit lhs, std::size_t op_index){
             template for(auto enumerator: all_dual_tag_enums){
                 if(enumerator==((tag>>1)^lhs.tag) ){ //cryptographers say that all they do is to use XOR, hence I used it to flatten stuff up for the cache and branch predictor's sake.
-
+                    static_cast<[:all_type_reflections[tag]:]>(ptr); //todo on how to use op_index
                 }
             }
         }
