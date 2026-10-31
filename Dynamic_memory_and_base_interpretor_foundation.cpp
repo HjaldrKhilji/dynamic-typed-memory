@@ -24,15 +24,17 @@ namespace storage{
         Delay<get_variant_of_unique_ts, N - 1, Head, Types... >
         >;
         using Variant_t = typename intermediate::Variant_t;
+        using List_t    = typename intermediate::List_t;
+        using intermediate::return_type_list;
+    };
+    template<typename... Types>
+    struct get_variant_of_unique_ts<0, Types...>
+    {
+        using Variant_t = std::variant<Types*...>;
         using List_t=std::array<std::meta::info, sizeof...(Types)>;
         static constexpr List_t return_type_list(){
-            return List_t{^^T...};
+            return List_t{^^Types...};
         }
-    };
-    template<typename Head, typename... Types>
-    struct get_variant_of_unique_ts<0, Head, Types...>
-    {
-        using Variant_t = std::variant<Head*, Types*...>;
     };
     template<typename ... Types>
     struct runtime_indexed_tuples {
